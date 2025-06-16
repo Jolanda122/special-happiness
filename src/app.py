@@ -18,7 +18,45 @@ app = FastAPI(title="Mergington High School API",
 current_dir = Path(__file__).parent
 app.mount("/static", StaticFiles(directory=os.path.join(Path(__file__).parent,
           "static")), name="static")
-
+        # Add more activities
+        activities.update({
+            "Basketball Team": {
+                "description": "Join the school basketball team for training and competitions",
+                "schedule": "Tuesdays and Thursdays, 4:00 PM - 6:00 PM",
+                "max_participants": 15,
+                "participants": []
+            },
+            "Soccer Club": {
+                "description": "Practice soccer skills and play friendly matches",
+                "schedule": "Wednesdays, 3:30 PM - 5:30 PM",
+                "max_participants": 18,
+                "participants": []
+            },
+            "Drama Club": {
+                "description": "Participate in theater productions and acting workshops",
+                "schedule": "Mondays, 4:00 PM - 5:30 PM",
+                "max_participants": 20,
+                "participants": []
+            },
+            "Art Workshop": {
+                "description": "Explore painting, drawing, and other visual arts",
+                "schedule": "Fridays, 3:30 PM - 5:00 PM",
+                "max_participants": 16,
+                "participants": []
+            },
+            "Math Olympiad": {
+                "description": "Prepare for math competitions and solve challenging problems",
+                "schedule": "Thursdays, 3:30 PM - 4:30 PM",
+                "max_participants": 10,
+                "participants": []
+            },
+            "Science Club": {
+                "description": "Conduct experiments and explore scientific concepts",
+                "schedule": "Wednesdays, 4:00 PM - 5:00 PM",
+                "max_participants": 14,
+                "participants": []
+            }
+        })
 # In-memory activity database
 activities = {
     "Chess Club": {
@@ -51,6 +89,23 @@ def root():
 def get_activities():
     return activities
 
+@app.post("/activities/{activity_name}/signup")
+def signup_for_activity(activity_name: str, email: str):
+   """Sign up a student for an activity"""
+   # Validate activity exists
+   if activity_name not in activities:
+      raise HTTPException(status_code=404, detail="Activity not found")
+
+   # Get the activity
+   activity = activities[activity_name]
+
+   # Validate student is not already signed up
+   if email in activity["participants"]:
+     raise HTTPException(status_code=400, detail="Student is already signed up")
+
+   # Add student
+   activity["participants"].append(email)
+   return {"message": f"Signed up {email} for {activity_name}"}
 
 @app.post("/activities/{activity_name}/signup")
 def signup_for_activity(activity_name: str, email: str):
